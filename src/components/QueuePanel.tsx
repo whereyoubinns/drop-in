@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import type { Player } from '../types';
+import type { Player, CourtId } from '../types';
 import { AddPlayerForm } from './AddPlayerForm';
 import { formatDuration, formatClockTime } from '../utils/timeUtils';
+import { useToast } from '../hooks/useToast';
 
 interface QueuePanelProps {
   queue: Player[];
@@ -9,9 +10,11 @@ interface QueuePanelProps {
   court2Players: Player[];
   onAddPlayer: (name: string) => void;
   onRemovePlayer: (playerId: string) => void;
+  onAddPlayerToCourt: (courtId: CourtId, playerId: string) => void;
 }
 
-export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, onRemovePlayer }: QueuePanelProps) => {
+export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, onRemovePlayer, onAddPlayerToCourt }: QueuePanelProps) => {
+  const { showToast } = useToast();
   const [, setTick] = useState(0);
 
   // Update every second for live time tracking
@@ -25,6 +28,43 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
 
   const getWaitingTime = (joinedAt: number) => {
     return Date.now() - joinedAt;
+  };
+
+  const getNextCourt = (queuePosition: number): { courtId: CourtId; label: string } | null => {
+    // Only show for the first person in queue
+    if (queuePosition !== 0) {
+      return null;
+    }
+
+    const court1HasSpace = court1Players.length < 3;
+    const court2HasSpace = court2Players.length < 3;
+
+    // If only one court has space, go there
+    if (court1HasSpace && !court2HasSpace) {
+      return { courtId: 'court1', label: 'Court 1 (right)' };
+    }
+    if (court2HasSpace && !court1HasSpace) {
+      return { courtId: 'court2', label: 'Court 2 (left)' };
+    }
+
+    // If both courts have space OR both are full, determine by who's been on longest
+    const allCourtPlayers = [...court1Players, ...court2Players];
+
+    // If both courts are empty, default to Court 1
+    if (allCourtPlayers.length === 0) {
+      return { courtId: 'court1', label: 'Court 1 (right)' };
+    }
+
+    // Find which court has the player who's been on the longest
+    const sortedPlayers = [...allCourtPlayers].sort((a, b) => (a.onCourtAt || 0) - (b.onCourtAt || 0));
+
+    if (sortedPlayers.length > 0 && sortedPlayers[0].court) {
+      const courtId = sortedPlayers[0].court;
+      const label = courtId === 'court1' ? 'Court 1 (right)' : 'Court 2 (left)';
+      return { courtId, label };
+    }
+
+    return null;
   };
 
   const getEstimatedTimeOn = (queuePosition: number): string | null => {
@@ -85,10 +125,24 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
             const waitingTime = getWaitingTime(player.joinedAt);
             const formattedTime = formatDuration(waitingTime);
             const estimatedTime = getEstimatedTimeOn(index);
+            const nextCourt = getNextCourt(index);
 
             const handleDragStart = (e: React.DragEvent) => {
               e.dataTransfer.effectAllowed = 'move';
               e.dataTransfer.setData('playerId', player.id);
+            };
+
+            const handleAddToCourt = () => {
+              if (!nextCourt) return;
+
+              const courtPlayers = nextCourt.courtId === 'court1' ? court1Players : court2Players;
+
+              if (courtPlayers.length >= 3) {
+                showToast('Court is full! Maximum 3 players per court.', 'warning');
+                return;
+              }
+
+              onAddPlayerToCourt(nextCourt.courtId, player.id);
             };
 
             return (
@@ -103,8 +157,20 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
                   <div className="queue-player-details">
                     <div className="queue-player-name-row">
                       <span className="player-name">{player.name}</span>
-                      {index === 0 && <span className="next-badge">Next</span>}
                     </div>
+                    {index === 0 && (
+                      <div className="queue-player-badges">
+                        <span className="next-badge">Next</span>
+                        {nextCourt && (
+                          <button
+                            className="next-court-badge clickable"
+                            onClick={handleAddToCourt}
+                          >
+                            → {nextCourt.label}
+                          </button>
+                        )}
+                      </div>
+                    )}
                     <div className="queue-player-times">
                       <span className="waiting-time">Waiting: {formattedTime}</span>
                       {estimatedTime && (
