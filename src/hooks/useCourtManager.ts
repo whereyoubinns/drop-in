@@ -40,6 +40,41 @@ export const useCourtManager = () => {
     saveState(state);
   }, [state]);
 
+  // Auto-clear at midnight
+  useEffect(() => {
+    const checkMidnight = () => {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+
+      // Check if it's midnight (00:00)
+      if (hours === 0 && minutes === 0) {
+        const lastClearDate = localStorage.getItem('lastMidnightClear');
+        const today = now.toDateString();
+
+        // Only clear once per midnight
+        if (lastClearDate !== today) {
+          const emptyState: AppState = {
+            court1: [],
+            court2: [],
+            waitingQueue: [],
+          };
+          setState(emptyState);
+          localStorage.setItem('lastMidnightClear', today);
+          showToast('🌙 Session reset at midnight', 'info');
+        }
+      }
+    };
+
+    // Check every minute
+    const interval = setInterval(checkMidnight, 60000);
+
+    // Check immediately on mount
+    checkMidnight();
+
+    return () => clearInterval(interval);
+  }, [showToast]);
+
   // Add a new player to the waiting queue
   const addPlayer = useCallback((name: string) => {
     const trimmedName = name.trim();
