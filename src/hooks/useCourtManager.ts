@@ -383,19 +383,19 @@ export const useCourtManager = () => {
         return prev;
       }
 
+      // Remove the dragged player
+      const [draggedPlayer] = queue.splice(draggedIndex, 1);
+
       // Calculate the correct insertion index after removal
       // If we're moving down the list (draggedIndex < targetIndex), indices have shifted
       const insertIndex = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
 
-      // Check if the item would end up in the same position
-      // But only if they're adjacent (moving by 1 position to where the item currently is)
-      if (draggedIndex === insertIndex || Math.abs(draggedIndex - targetIndex) === 1) {
-        // This is an adjacent swap or same position - don't reorder
+      // Check if the item would end up in the same position after insertion
+      if (draggedIndex === insertIndex) {
+        // Put it back and don't reorder
+        queue.splice(draggedIndex, 0, draggedPlayer);
         return prev;
       }
-
-      // Remove the dragged player
-      const [draggedPlayer] = queue.splice(draggedIndex, 1);
 
       // Insert at the calculated position
       queue.splice(insertIndex, 0, draggedPlayer);
