@@ -11,12 +11,14 @@ interface QueuePanelProps {
   onAddPlayer: (name: string) => void;
   onRemovePlayer: (playerId: string) => void;
   onAddPlayerToCourt: (courtId: CourtId, playerId: string) => void;
+  onReorderQueue: (draggedPlayerId: string, targetPlayerId: string) => void;
   sessionDuration: number; // in minutes
 }
 
-export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, onRemovePlayer, onAddPlayerToCourt, sessionDuration }: QueuePanelProps) => {
+export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, onRemovePlayer, onAddPlayerToCourt, onReorderQueue, sessionDuration }: QueuePanelProps) => {
   const { showToast } = useToast();
   const [, setTick] = useState(0);
+  const [draggedOverId, setDraggedOverId] = useState<string | null>(null);
 
   // Update every second for live time tracking
   useEffect(() => {
@@ -129,6 +131,40 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
             const handleDragStart = (e: React.DragEvent) => {
               e.dataTransfer.effectAllowed = 'move';
               e.dataTransfer.setData('playerId', player.id);
+              e.dataTransfer.setData('source', 'queue');
+            };
+
+            const handleDragOver = (e: React.DragEvent) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+            };
+
+            const handleDragEnter = (e: React.DragEvent) => {
+              e.preventDefault();
+              const source = e.dataTransfer.types.includes('source');
+              if (source) {
+                setDraggedOverId(player.id);
+              }
+            };
+
+            const handleDragLeave = (e: React.DragEvent) => {
+              if (e.currentTarget.contains(e.relatedTarget as Node)) {
+                return;
+              }
+              setDraggedOverId(null);
+            };
+
+            const handleDrop = (e: React.DragEvent) => {
+              e.preventDefault();
+              setDraggedOverId(null);
+
+              const draggedPlayerId = e.dataTransfer.getData('playerId');
+              const source = e.dataTransfer.getData('source');
+
+              // Only reorder if dragging within the queue
+              if (source === 'queue' && draggedPlayerId && draggedPlayerId !== player.id) {
+                onReorderQueue(draggedPlayerId, player.id);
+              }
             };
 
             const handleAddToCourt = () => {
@@ -144,12 +180,18 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
               onAddPlayerToCourt(nextCourt.courtId, player.id);
             };
 
+            const isDraggedOver = draggedOverId === player.id;
+
             return (
               <div
                 key={player.id}
-                className="queue-item"
+                className={`queue-item ${isDraggedOver ? 'drag-over' : ''}`}
                 draggable
                 onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
               >
                 <div className="queue-item-left">
                   <span className="queue-position">#{index + 1}</span>

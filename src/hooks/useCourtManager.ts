@@ -360,6 +360,31 @@ export const useCourtManager = () => {
     }));
   }, []);
 
+  // Reorder players in the queue
+  const reorderQueue = useCallback((draggedPlayerId: string, targetPlayerId: string) => {
+    setState(prev => {
+      const queue = [...prev.waitingQueue];
+      const draggedIndex = queue.findIndex(p => p.id === draggedPlayerId);
+      const targetIndex = queue.findIndex(p => p.id === targetPlayerId);
+
+      if (draggedIndex === -1 || targetIndex === -1) {
+        return prev;
+      }
+
+      // Remove the dragged player
+      const [draggedPlayer] = queue.splice(draggedIndex, 1);
+
+      // Insert at the target position
+      queue.splice(targetIndex, 0, draggedPlayer);
+
+      return {
+          ...prev,
+          waitingQueue: queue,
+        };
+    });
+    showToast('Queue reordered!', 'success');
+}, []);
+
   // Clear all data
   const clearAll = useCallback(() => {
     if (!confirm('Clear all players and reset the app?')) {
@@ -385,6 +410,7 @@ export const useCourtManager = () => {
     clearCourt,
     rotateCourt,
     clearQueue,
+    reorderQueue,
     clearAll,
   };
 };

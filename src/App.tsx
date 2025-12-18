@@ -42,6 +42,7 @@ function AppContent() {
     removeFromCourt,
     clearCourt,
     clearQueue,
+    reorderQueue,
     clearAll,
   } = useCourtManager();
 
@@ -125,6 +126,7 @@ function AppContent() {
             onAddPlayer={addPlayer}
             onRemovePlayer={removeFromQueue}
             onAddPlayerToCourt={addSpecificPlayerToCourt}
+            onReorderQueue={reorderQueue}
             sessionDuration={sessionDuration}
           />
         </aside>
