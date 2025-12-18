@@ -1,6 +1,7 @@
 # Squamish Squash Drop-In Court Manager
 
 A lightweight web application for managing Friday night squash drop-in sessions with 2 courts, FIFO rotation, and configurable play slots (20-35 minutes).
+Hosted at: https://whereyoubinns.github.io/drop-in/
 
 ## Features
 
