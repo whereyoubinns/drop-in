@@ -70,7 +70,7 @@ function AppContent() {
                     }}
                     className="menu-item menu-item-danger"
                   >
-                    Clear All Courts
+                    Clear Courts
                   </button>
                 </div>
               </>

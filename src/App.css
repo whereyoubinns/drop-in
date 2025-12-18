@@ -12,6 +12,8 @@
   color: white;
   padding: 1.5rem 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 100;
 }
 
 .app-header h1 {
@@ -27,6 +29,8 @@
   font-size: 0.95rem;
   opacity: 0.95;
   gap: 1rem;
+  position: relative;
+  z-index: 10001;
 }
 
 .header-right {
@@ -45,6 +49,7 @@
 
 .header-menu {
   position: relative;
+  z-index: 10000;
 }
 
 /* Layout */
@@ -242,12 +247,16 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
+  position: relative;
+  z-index: 10;
 }
 
 .court-header-right {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
+  z-index: 10001;
 }
 
 .court-capacity {
@@ -292,6 +301,7 @@
 
 .court-menu {
   position: relative;
+  z-index: 10000;
 }
 
 .btn-icon-only {
@@ -307,7 +317,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 998;
+  z-index: 9998;
 }
 
 .menu-dropdown {
@@ -317,7 +327,7 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 999;
+  z-index: 9999;
   min-width: 160px;
   overflow: hidden;
   border: 1px solid #e2e8f0;
