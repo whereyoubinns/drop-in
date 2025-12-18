@@ -359,6 +359,12 @@
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
+.dark-mode .court-panel.drag-over {
+  border: 3px dashed #a5b4fc;
+  background: rgba(165, 180, 252, 0.1);
+  box-shadow: 0 0 0 4px rgba(165, 180, 252, 0.2);
+}
+
 .court-header {
   display: flex;
   justify-content: space-between;
