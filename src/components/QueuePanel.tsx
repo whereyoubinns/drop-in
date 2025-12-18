@@ -19,6 +19,8 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
   const { showToast } = useToast();
   const [, setTick] = useState(0);
   const [draggedOverId, setDraggedOverId] = useState<string | null>(null);
+  const [draggedPlayerId, setDraggedPlayerId] = useState<string | null>(null);
+  const [recentlyMovedId, setRecentlyMovedId] = useState<string | null>(null);
 
   // Update every second for live time tracking
   useEffect(() => {
@@ -28,6 +30,17 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
 
     return () => clearInterval(interval);
   }, []);
+
+  // Clear the recently moved highlight after 2 seconds
+  useEffect(() => {
+    if (recentlyMovedId) {
+      const timeout = setTimeout(() => {
+        setRecentlyMovedId(null);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [recentlyMovedId]);
 
   const getNextCourt = (queuePosition: number): { courtId: CourtId; label: string; replacingPlayer?: Player } | null => {
     // Only show for the first person in queue
@@ -120,7 +133,15 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
 
       <AddPlayerForm onAddPlayer={onAddPlayer} />
 
-      <div className="player-list">
+      <div
+        className="player-list"
+        onDragLeave={(e) => {
+          // Clear drag over state when leaving the list area
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setDraggedOverId(null);
+          }
+        }}
+      >
         {queue.length === 0 ? (
           <div className="empty-message">No players in queue</div>
         ) : (
@@ -132,38 +153,53 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
               e.dataTransfer.effectAllowed = 'move';
               e.dataTransfer.setData('playerId', player.id);
               e.dataTransfer.setData('source', 'queue');
+              setDraggedPlayerId(player.id);
+            };
+
+            const handleDragEnd = () => {
+              setDraggedPlayerId(null);
+              setDraggedOverId(null);
             };
 
             const handleDragOver = (e: React.DragEvent) => {
               e.preventDefault();
-              e.dataTransfer.dropEffect = 'move';
-            };
 
-            const handleDragEnter = (e: React.DragEvent) => {
-              e.preventDefault();
-              const source = e.dataTransfer.types.includes('source');
-              if (source) {
+              // Don't allow dropping on the item being dragged
+              if (draggedPlayerId === player.id) {
+                e.dataTransfer.dropEffect = 'none';
+                return;
+              }
+
+              e.dataTransfer.dropEffect = 'move';
+
+              // Only update state if it's different from current
+              if (draggedOverId !== player.id) {
                 setDraggedOverId(player.id);
               }
             };
 
-            const handleDragLeave = (e: React.DragEvent) => {
-              if (e.currentTarget.contains(e.relatedTarget as Node)) {
-                return;
-              }
-              setDraggedOverId(null);
-            };
-
             const handleDrop = (e: React.DragEvent) => {
               e.preventDefault();
+              e.stopPropagation(); // Prevent event from bubbling to other queue items
               setDraggedOverId(null);
 
-              const draggedPlayerId = e.dataTransfer.getData('playerId');
+              const droppedPlayerId = e.dataTransfer.getData('playerId');
               const source = e.dataTransfer.getData('source');
 
-              // Only reorder if dragging within the queue
-              if (source === 'queue' && draggedPlayerId && draggedPlayerId !== player.id) {
-                onReorderQueue(draggedPlayerId, player.id);
+              // Don't do anything if dropping on itself
+              if (droppedPlayerId === player.id) {
+                return;
+              }
+
+              // Only reorder if dragging within the queue and it's a different player
+              if (source === 'queue' && droppedPlayerId) {
+                onReorderQueue(droppedPlayerId, player.id);
+                // Clear any previous animation and set new one
+                setRecentlyMovedId(null);
+                // Use setTimeout to ensure the animation resets properly
+                setTimeout(() => {
+                  setRecentlyMovedId(droppedPlayerId);
+                }, 10);
               }
             };
 
@@ -180,17 +216,19 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
               onAddPlayerToCourt(nextCourt.courtId, player.id);
             };
 
-            const isDraggedOver = draggedOverId === player.id;
+            const isDragging = draggedPlayerId === player.id;
+            // Don't show drop zone on the item being dragged
+            const isDraggedOver = draggedOverId === player.id && !isDragging;
+            const isRecentlyMoved = recentlyMovedId === player.id;
 
             return (
               <div
                 key={player.id}
-                className={`queue-item ${isDraggedOver ? 'drag-over' : ''}`}
+                className={`queue-item ${isDraggedOver ? 'drag-over' : ''} ${isDragging ? 'dragging' : ''} ${isRecentlyMoved ? 'recently-moved' : ''}`}
                 draggable
                 onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
                 onDragOver={handleDragOver}
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
                 <div className="queue-item-left">

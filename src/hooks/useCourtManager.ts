@@ -362,6 +362,13 @@ export const useCourtManager = () => {
 
   // Reorder players in the queue
   const reorderQueue = useCallback((draggedPlayerId: string, targetPlayerId: string) => {
+    // Don't reorder if trying to drop on itself
+    if (draggedPlayerId === targetPlayerId) {
+      return;
+    }
+
+    let actuallyReordered = false;
+
     setState(prev => {
       const queue = [...prev.waitingQueue];
       const draggedIndex = queue.findIndex(p => p.id === draggedPlayerId);
@@ -371,19 +378,40 @@ export const useCourtManager = () => {
         return prev;
       }
 
+      // Don't reorder if they're the same position
+      if (draggedIndex === targetIndex) {
+        return prev;
+      }
+
       // Remove the dragged player
       const [draggedPlayer] = queue.splice(draggedIndex, 1);
 
-      // Insert at the target position
-      queue.splice(targetIndex, 0, draggedPlayer);
+      // Calculate the correct insertion index after removal
+      // If we're moving down the list (draggedIndex < targetIndex), indices have shifted
+      const insertIndex = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
+
+      // Check if the item would end up in the same position
+      if (draggedIndex === insertIndex) {
+        // Put it back and don't reorder
+        queue.splice(draggedIndex, 0, draggedPlayer);
+        return prev;
+      }
+
+      // Insert at the calculated position
+      queue.splice(insertIndex, 0, draggedPlayer);
+
+      actuallyReordered = true;
 
       return {
           ...prev,
           waitingQueue: queue,
         };
     });
-    showToast('Queue reordered!', 'success');
-}, []);
+
+    if (actuallyReordered) {
+      showToast('Queue reordered!', 'success');
+    }
+}, [showToast]);
 
   // Clear all data
   const clearAll = useCallback(() => {
