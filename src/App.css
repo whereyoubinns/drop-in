@@ -205,6 +205,14 @@
   border-color: #667eea;
 }
 
+.player-input::placeholder {
+  color: #a0aec0;
+}
+
+.dark-mode .player-input::placeholder {
+  color: #9ca3af;
+}
+
 .player-list {
   display: flex;
   flex-direction: column;
