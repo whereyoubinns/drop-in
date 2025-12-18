@@ -55,7 +55,8 @@
 /* Layout */
 .app-layout {
   flex: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1.5rem;
   padding: 1.5rem;
   max-width: 1800px;
@@ -64,19 +65,15 @@
 }
 
 .sidebar {
-  width: 420px;
-  flex-shrink: 0;
-}
-
-.main-content {
-  flex: 1;
   min-width: 0;
 }
 
+.main-content {
+  display: contents;
+}
+
 .courts-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
+  display: contents;
 }
 
 /* Panels */
@@ -206,6 +203,12 @@
   font-size: 1.1rem;
 }
 
+.queue-player-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
 .queue-player-times {
   display: flex;
   flex-direction: column;
@@ -234,6 +237,28 @@
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.next-court-badge {
+  background: #667eea;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.next-court-badge:hover {
+  background: #5568d3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.next-court-badge:active {
+  transform: translateY(0);
 }
 
 /* Court Panel */
@@ -659,16 +684,12 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
   .app-layout {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
   .sidebar {
     width: 100%;
     position: static;
-  }
-
-  .courts-container {
-    grid-template-columns: 1fr;
   }
 }
 

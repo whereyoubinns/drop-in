@@ -88,6 +88,7 @@ function AppContent() {
             court2Players={state.court2}
             onAddPlayer={addPlayer}
             onRemovePlayer={removeFromQueue}
+            onAddPlayerToCourt={addSpecificPlayerToCourt}
           />
         </aside>
 
