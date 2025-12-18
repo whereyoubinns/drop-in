@@ -3,6 +3,7 @@ import type { Player, CourtId } from '../types';
 import { PlayerCard } from './PlayerCard';
 import { getTimeOnCourt, getTimeStatus } from '../utils/timeUtils';
 import { useToast } from '../hooks/useToast';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 interface CourtPanelProps {
   courtId: CourtId;
@@ -25,6 +26,7 @@ export const CourtPanel = ({
   onClear,
   sessionDuration,
 }: CourtPanelProps) => {
+  const isMobile = useIsMobile();
   const [isDragOver, setIsDragOver] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [, setTick] = useState(0);
@@ -98,10 +100,10 @@ export const CourtPanel = ({
   return (
     <div
       className={`court-panel panel ${isDragOver && !isFull ? 'drag-over' : ''}`}
-      onDragOver={handleDragOver}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
+      onDragOver={!isMobile ? handleDragOver : undefined}
+      onDragEnter={!isMobile ? handleDragEnter : undefined}
+      onDragLeave={!isMobile ? handleDragLeave : undefined}
+      onDrop={!isMobile ? handleDrop : undefined}
     >
       <div className="court-header">
         <h2>{courtName}</h2>
@@ -166,6 +168,7 @@ export const CourtPanel = ({
             onRemove={() => onRemovePlayer(player.id)}
             courtId={courtId}
             sessionDuration={sessionDuration}
+            isMobile={isMobile}
           />
         ))}
         {[...Array(3 - players.length)].map((_, index) => (

@@ -8,9 +8,10 @@ interface PlayerCardProps {
   onRemove: () => void;
   courtId?: string;
   sessionDuration: number; // in minutes
+  isMobile?: boolean;
 }
 
-export const PlayerCard = ({ player, isNextOff, onRemove, courtId, sessionDuration }: PlayerCardProps) => {
+export const PlayerCard = ({ player, isNextOff, onRemove, courtId, sessionDuration, isMobile = false }: PlayerCardProps) => {
   const [, setTick] = useState(0);
 
   // Update every second for live time tracking
@@ -41,8 +42,8 @@ export const PlayerCard = ({ player, isNextOff, onRemove, courtId, sessionDurati
   return (
     <div
       className={`player-card ${timeStatus} ${isNextOff ? 'next-off' : ''}`}
-      draggable
-      onDragStart={handleDragStart}
+      draggable={!isMobile}
+      onDragStart={!isMobile ? handleDragStart : undefined}
     >
       <div className="player-card-content">
         <div className="player-card-info">

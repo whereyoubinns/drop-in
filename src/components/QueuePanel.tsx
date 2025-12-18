@@ -3,6 +3,7 @@ import type { Player, CourtId } from '../types';
 import { AddPlayerForm } from './AddPlayerForm';
 import { formatClockTime } from '../utils/timeUtils';
 import { useToast } from '../hooks/useToast';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 interface QueuePanelProps {
   queue: Player[];
@@ -17,6 +18,7 @@ interface QueuePanelProps {
 
 export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, onRemovePlayer, onAddPlayerToCourt, onReorderQueue, sessionDuration }: QueuePanelProps) => {
   const { showToast } = useToast();
+  const isMobile = useIsMobile();
   const [, setTick] = useState(0);
   const [draggedOverId, setDraggedOverId] = useState<string | null>(null);
   const [draggedPlayerId, setDraggedPlayerId] = useState<string | null>(null);
@@ -135,12 +137,12 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
 
       <div
         className={`player-list ${draggedPlayerId ? 'is-dragging' : ''}`}
-        onDragLeave={(e) => {
+        onDragLeave={!isMobile ? (e) => {
           // Clear drag over state when leaving the list area
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {
             setDraggedOverId(null);
           }
-        }}
+        } : undefined}
       >
         {queue.length === 0 ? (
           <div className="empty-message">No players in queue</div>
@@ -225,11 +227,11 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
               <div
                 key={player.id}
                 className={`queue-item ${isDraggedOver ? 'drag-over' : ''} ${isDragging ? 'dragging' : ''} ${isRecentlyMoved ? 'recently-moved' : ''}`}
-                draggable
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
+                draggable={!isMobile}
+                onDragStart={!isMobile ? handleDragStart : undefined}
+                onDragEnd={!isMobile ? handleDragEnd : undefined}
+                onDragOver={!isMobile ? handleDragOver : undefined}
+                onDrop={!isMobile ? handleDrop : undefined}
               >
                 <div className="queue-item-left">
                   <span className="queue-position">#{index + 1}</span>

@@ -12,7 +12,7 @@ function AppContent() {
   const [sessionDuration, setSessionDuration] = useState(20); // in minutes
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
+    return saved ? JSON.parse(saved) : true;
   });
 
   // Update current time every second
