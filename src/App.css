@@ -230,6 +230,28 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  padding-right: 0.75rem;
+}
+
+/* Custom scrollbar styling */
+.player-list::-webkit-scrollbar {
+  width: 12px;
+}
+
+.player-list::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+  border-radius: 6px;
+  margin: 4px;
+}
+
+.player-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 6px;
+  border: 2px solid var(--panel-bg);
+}
+
+.player-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
 }
 
 .queue-item {
