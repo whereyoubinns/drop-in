@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Player, CourtId, AppState } from '../types';
+import { useToast } from './useToast';
 
 const STORAGE_KEY = 'squash-court-manager-state';
 const MAX_PLAYERS_PER_COURT = 3;
@@ -32,6 +33,7 @@ const saveState = (state: AppState) => {
 
 export const useCourtManager = () => {
   const [state, setState] = useState<AppState>(loadState);
+  const { showToast } = useToast();
 
   // Save to localStorage whenever state changes
   useEffect(() => {
@@ -54,7 +56,7 @@ export const useCourtManager = () => {
     );
 
     if (nameExists) {
-      alert('A player with this name is already active!');
+      showToast('A player with this name is already active!', 'warning');
       return;
     }
 
@@ -84,12 +86,12 @@ export const useCourtManager = () => {
       const court = prev[courtId];
 
       if (court.length >= MAX_PLAYERS_PER_COURT) {
-        alert('Court is full! Maximum 3 players per court.');
+        showToast('Court is full! Maximum 3 players per court.', 'warning');
         return prev;
       }
 
       if (prev.waitingQueue.length === 0) {
-        alert('No players in queue!');
+        showToast('No players in queue!', 'warning');
         return prev;
       }
 
@@ -114,7 +116,7 @@ export const useCourtManager = () => {
       const court = prev[courtId];
 
       if (court.length >= MAX_PLAYERS_PER_COURT) {
-        alert('Court is full! Maximum 3 players per court.');
+        showToast('Court is full! Maximum 3 players per court.', 'warning');
         return prev;
       }
 
@@ -197,7 +199,7 @@ export const useCourtManager = () => {
       const court = prev[courtId];
 
       if (court.length === 0) {
-        alert('Court is empty!');
+        showToast('Court is empty!', 'warning');
         return prev;
       }
 

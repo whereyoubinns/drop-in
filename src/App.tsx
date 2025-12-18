@@ -133,4 +133,12 @@ function AppContent() {
   );
 }
 
+function App() {
+  return (
+    <ToastProvider>
+      <AppContent />
+    </ToastProvider>
+  );
+}
+
 export default App;

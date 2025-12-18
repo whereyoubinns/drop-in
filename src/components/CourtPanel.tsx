@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Player, CourtId } from '../types';
 import { PlayerCard } from './PlayerCard';
 import { getTimeOnCourt, getTimeStatus } from '../utils/timeUtils';
+import { useToast } from '../hooks/useToast';
 
 interface CourtPanelProps {
   courtId: CourtId;
@@ -25,6 +26,7 @@ export const CourtPanel = ({
   const [isDragOver, setIsDragOver] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [, setTick] = useState(0);
+  const { showToast } = useToast();
 
   const courtName = courtId === 'court1' ? 'Court 1 (right)' : 'Court 2 (left)';
   const isFull = players.length >= 3;
@@ -74,7 +76,7 @@ export const CourtPanel = ({
     setIsDragOver(false);
 
     if (isFull) {
-      alert('Court is full! Maximum 3 players per court.');
+      showToast('Court is full! Maximum 3 players per court.', 'warning');
       return;
     }
 
