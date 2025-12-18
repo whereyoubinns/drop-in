@@ -12,6 +12,7 @@ interface CourtPanelProps {
   onRemovePlayer: (playerId: string) => void;
   onAddPlayerToCourt: (playerId: string) => void;
   onClear: () => void;
+  sessionDuration: number; // in minutes
 }
 
 export const CourtPanel = ({
@@ -22,6 +23,7 @@ export const CourtPanel = ({
   onRemovePlayer,
   onAddPlayerToCourt,
   onClear,
+  sessionDuration,
 }: CourtPanelProps) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -111,7 +113,7 @@ export const CourtPanel = ({
 
               if (player) {
                 const timeOnCourt = getTimeOnCourt(player.onCourtAt);
-                const timeStatus = getTimeStatus(timeOnCourt);
+                const timeStatus = getTimeStatus(timeOnCourt, sessionDuration);
                 statusClass = `filled ${timeStatus}`;
               }
 
@@ -163,6 +165,7 @@ export const CourtPanel = ({
             isNextOff={nextOffPlayer?.id === player.id}
             onRemove={() => onRemovePlayer(player.id)}
             courtId={courtId}
+            sessionDuration={sessionDuration}
           />
         ))}
         {[...Array(3 - players.length)].map((_, index) => (

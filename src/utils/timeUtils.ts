@@ -13,18 +13,19 @@ export const getTimeOnCourt = (onCourtAt?: number): number => {
   return Date.now() - onCourtAt;
 };
 
-export const getTimeStatus = (milliseconds: number): 'good' | 'warning' | 'overtime' => {
+export const getTimeStatus = (milliseconds: number, sessionDuration: number = 20): 'good' | 'warning' | 'overtime' => {
   const minutes = milliseconds / (1000 * 60);
+  const warningThreshold = sessionDuration * 0.75; // 75% of session time
 
-  if (minutes < 15) return 'good';
-  if (minutes < 20) return 'warning';
+  if (minutes < warningThreshold) return 'good';
+  if (minutes < sessionDuration) return 'warning';
   return 'overtime';
 };
 
-export const isOvertime = (onCourtAt?: number): boolean => {
+export const isOvertime = (onCourtAt?: number, sessionDuration: number = 20): boolean => {
   if (!onCourtAt) return false;
   const timeOnCourt = getTimeOnCourt(onCourtAt);
-  return timeOnCourt > 20 * 60 * 1000; // 20 minutes
+  return timeOnCourt > sessionDuration * 60 * 1000;
 };
 
 export const formatClockTime = (timestamp: number): string => {

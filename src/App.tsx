@@ -9,6 +9,7 @@ import './App.css';
 function AppContent() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const [sessionDuration, setSessionDuration] = useState(20); // in minutes
 
   // Update current time every second
   useEffect(() => {
@@ -33,9 +34,22 @@ function AppContent() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🎾 Squash Drop-In Court Manager</h1>
+        <h1>Drop-In Court Manager</h1>
         <div className="header-info">
-          <span>Friday Night Drop-In • 20min Sessions</span>
+          <div className="session-config">
+            <span>Friday Night Drop-In • </span>
+            <select
+              value={sessionDuration}
+              onChange={(e) => setSessionDuration(Number(e.target.value))}
+              className="session-duration-select"
+            >
+              <option value={20}>20min</option>
+              <option value={25}>25min</option>
+              <option value={30}>30min</option>
+              <option value={35}>35min</option>
+            </select>
+            <span> Sessions</span>
+          </div>
           <div className="header-right">
             <span className="current-time">{formatClockTime(currentTime)}</span>
             <div className="header-menu">
@@ -70,7 +84,7 @@ function AppContent() {
                     }}
                     className="menu-item menu-item-danger"
                   >
-                    Clear Courts
+                    Clear all
                   </button>
                 </div>
               </>
@@ -89,6 +103,7 @@ function AppContent() {
             onAddPlayer={addPlayer}
             onRemovePlayer={removeFromQueue}
             onAddPlayerToCourt={addSpecificPlayerToCourt}
+            sessionDuration={sessionDuration}
           />
         </aside>
 
@@ -102,6 +117,7 @@ function AppContent() {
               onAddPlayerToCourt={(playerId) => addSpecificPlayerToCourt('court2', playerId)}
               onRemovePlayer={(playerId) => removeFromCourt('court2', playerId)}
               onClear={() => clearCourt('court2')}
+              sessionDuration={sessionDuration}
             />
 
             <CourtPanel
@@ -112,6 +128,7 @@ function AppContent() {
               onAddPlayerToCourt={(playerId) => addSpecificPlayerToCourt('court1', playerId)}
               onRemovePlayer={(playerId) => removeFromCourt('court1', playerId)}
               onClear={() => clearCourt('court1')}
+              sessionDuration={sessionDuration}
             />
           </div>
         </main>
@@ -120,13 +137,13 @@ function AppContent() {
       <footer className="app-footer">
         <div className="legend">
           <span className="legend-item">
-            <span className="legend-color good"></span> &lt; 15 min
+            <span className="legend-color good"></span> &lt; {Math.floor(sessionDuration * 0.75)} min
           </span>
           <span className="legend-item">
-            <span className="legend-color warning"></span> 15-20 min
+            <span className="legend-color warning"></span> {Math.floor(sessionDuration * 0.75)}-{sessionDuration} min
           </span>
           <span className="legend-item">
-            <span className="legend-color overtime"></span> &gt; 20 min (Overtime)
+            <span className="legend-color overtime"></span> &gt; {sessionDuration} min (Overtime)
           </span>
         </div>
       </footer>

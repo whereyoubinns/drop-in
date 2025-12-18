@@ -33,6 +33,39 @@
   z-index: 100001;
 }
 
+.session-config {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.session-duration-select {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.session-duration-select:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.session-duration-select:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.session-duration-select option {
+  background: #667eea;
+  color: white;
+}
+
 .header-right {
   display: flex;
   align-items: center;
@@ -226,6 +259,12 @@
   font-size: 0.875rem;
   color: #667eea;
   font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.replacing-player {
+  font-size: 0.875rem;
+  color: #48bb78;
   font-weight: 600;
 }
 

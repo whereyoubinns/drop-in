@@ -7,9 +7,10 @@ interface PlayerCardProps {
   isNextOff: boolean;
   onRemove: () => void;
   courtId?: string;
+  sessionDuration: number; // in minutes
 }
 
-export const PlayerCard = ({ player, isNextOff, onRemove, courtId }: PlayerCardProps) => {
+export const PlayerCard = ({ player, isNextOff, onRemove, courtId, sessionDuration }: PlayerCardProps) => {
   const [, setTick] = useState(0);
 
   // Update every second for live time tracking
@@ -22,12 +23,12 @@ export const PlayerCard = ({ player, isNextOff, onRemove, courtId }: PlayerCardP
   }, []);
 
   const timeOnCourt = getTimeOnCourt(player.onCourtAt);
-  const timeStatus = getTimeStatus(timeOnCourt);
+  const timeStatus = getTimeStatus(timeOnCourt, sessionDuration);
   const formattedTime = formatDuration(timeOnCourt);
 
-  // Calculate estimated time off (20 minutes from when they went on)
-  const sessionDuration = 20 * 60 * 1000; // 20 minutes in milliseconds
-  const estimatedTimeOff = player.onCourtAt ? formatClockTime(player.onCourtAt + sessionDuration) : null;
+  // Calculate estimated time off
+  const sessionDurationMs = sessionDuration * 60 * 1000; // convert minutes to milliseconds
+  const estimatedTimeOff = player.onCourtAt ? formatClockTime(player.onCourtAt + sessionDurationMs) : null;
 
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.effectAllowed = 'move';

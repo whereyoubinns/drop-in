@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Player, CourtId } from '../types';
 import { AddPlayerForm } from './AddPlayerForm';
-import { formatDuration, formatClockTime } from '../utils/timeUtils';
+import { formatClockTime } from '../utils/timeUtils';
 import { useToast } from '../hooks/useToast';
 
 interface QueuePanelProps {
@@ -11,9 +11,10 @@ interface QueuePanelProps {
   onAddPlayer: (name: string) => void;
   onRemovePlayer: (playerId: string) => void;
   onAddPlayerToCourt: (courtId: CourtId, playerId: string) => void;
+  sessionDuration: number; // in minutes
 }
 
-export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, onRemovePlayer, onAddPlayerToCourt }: QueuePanelProps) => {
+export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, onRemovePlayer, onAddPlayerToCourt, sessionDuration }: QueuePanelProps) => {
   const { showToast } = useToast();
   const [, setTick] = useState(0);
 
@@ -26,11 +27,7 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
     return () => clearInterval(interval);
   }, []);
 
-  const getWaitingTime = (joinedAt: number) => {
-    return Date.now() - joinedAt;
-  };
-
-  const getNextCourt = (queuePosition: number): { courtId: CourtId; label: string } | null => {
+  const getNextCourt = (queuePosition: number): { courtId: CourtId; label: string; replacingPlayer?: Player } | null => {
     // Only show for the first person in queue
     if (queuePosition !== 0) {
       return null;
@@ -39,7 +36,7 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
     const court1HasSpace = court1Players.length < 3;
     const court2HasSpace = court2Players.length < 3;
 
-    // If only one court has space, go there
+    // If only one court has space, go there (no replacement, just filling empty spot)
     if (court1HasSpace && !court2HasSpace) {
       return { courtId: 'court1', label: 'Court 1 (right)' };
     }
@@ -61,7 +58,11 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
     if (sortedPlayers.length > 0 && sortedPlayers[0].court) {
       const courtId = sortedPlayers[0].court;
       const label = courtId === 'court1' ? 'Court 1 (right)' : 'Court 2 (left)';
-      return { courtId, label };
+
+      // Only show replacing player if both courts are full
+      const replacingPlayer = (court1HasSpace || court2HasSpace) ? undefined : sortedPlayers[0];
+
+      return { courtId, label, replacingPlayer };
     }
 
     return null;
@@ -96,9 +97,9 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
       return null;
     }
 
-    // Calculate when they would reach 20 minutes (session time)
-    const sessionDuration = 20 * 60 * 1000; // 20 minutes in milliseconds
-    const estimatedTime = playerComingOff.onCourtAt + sessionDuration;
+    // Calculate when they would reach the session time
+    const sessionDurationMs = sessionDuration * 60 * 1000; // convert minutes to milliseconds
+    const estimatedTime = playerComingOff.onCourtAt + sessionDurationMs;
 
     // If the estimated time is in the past (player is overtime), show "Now"
     if (estimatedTime <= Date.now()) {
@@ -122,8 +123,6 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
           <div className="empty-message">No players in queue</div>
         ) : (
           queue.map((player, index) => {
-            const waitingTime = getWaitingTime(player.joinedAt);
-            const formattedTime = formatDuration(waitingTime);
             const estimatedTime = getEstimatedTimeOn(index);
             const nextCourt = getNextCourt(index);
 
@@ -172,9 +171,11 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
                       </div>
                     )}
                     <div className="queue-player-times">
-                      <span className="waiting-time">Waiting: {formattedTime}</span>
                       {estimatedTime && (
                         <span className="estimated-time">Est. on: {estimatedTime}</span>
+                      )}
+                      {nextCourt?.replacingPlayer && (
+                        <span className="replacing-player">Replacing: {nextCourt.replacingPlayer.name}</span>
                       )}
                     </div>
                   </div>
