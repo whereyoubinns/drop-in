@@ -282,14 +282,43 @@
 }
 
 .queue-item.drag-over {
-  border: 2px solid #667eea;
-  background: rgba(102, 126, 234, 0.1);
-  transform: scale(1.02);
+  position: relative;
+  margin-top: 2.25rem;
+  transition: margin-top 0.2s ease;
 }
 
-.dark-mode .queue-item.drag-over {
-  border: 2px solid #a5b4fc;
-  background: rgba(165, 180, 252, 0.15);
+.queue-item.drag-over::before {
+  content: 'Drop here';
+  position: absolute;
+  top: -2.755rem;
+  left: 0;
+  right: 0;
+  height: 2rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(102, 126, 234, 0.25) 100%);
+  border: 2px dashed #667eea;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #667eea;
+  animation: pulse-drop-zone 1.5s ease-in-out infinite;
+}
+
+.dark-mode .queue-item.drag-over::before {
+  background: linear-gradient(135deg, rgba(165, 180, 252, 0.15) 0%, rgba(165, 180, 252, 0.25) 100%);
+  border-color: #a5b4fc;
+  color: #a5b4fc;
+}
+
+@keyframes pulse-drop-zone {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .queue-item-left {
