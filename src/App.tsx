@@ -49,6 +49,7 @@ function AppContent() {
   return (
     <div className="app">
       <header className="app-header">
+        <span className="current-time-top">{formatClockTime(currentTime)}</span>
         <h1>Drop-In Court Manager</h1>
         <div className="header-info">
           <div className="session-config">
@@ -66,7 +67,6 @@ function AppContent() {
             <span> Sessions</span>
           </div>
           <div className="header-right">
-            <span className="current-time">{formatClockTime(currentTime)}</span>
             <button
               onClick={() => setDarkMode(!darkMode)}
               className="btn btn-secondary btn-icon-only"
