@@ -235,7 +235,12 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  padding-right: 0.75rem;
+  padding: 0 0.75rem 1rem 0; /* Right for scrollbar, bottom for spacing */
+}
+
+/* Add top padding only when dragging */
+.player-list.is-dragging {
+  padding-top: 0.75rem; /* Small space for drop zone above first item */
 }
 
 /* Custom scrollbar styling */

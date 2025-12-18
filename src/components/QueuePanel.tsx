@@ -134,7 +134,7 @@ export const QueuePanel = ({ queue, court1Players, court2Players, onAddPlayer, o
       <AddPlayerForm onAddPlayer={onAddPlayer} />
 
       <div
-        className="player-list"
+        className={`player-list ${draggedPlayerId ? 'is-dragging' : ''}`}
         onDragLeave={(e) => {
           // Clear drag over state when leaving the list area
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {
