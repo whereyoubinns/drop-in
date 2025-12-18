@@ -10,6 +10,10 @@ function AppContent() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [sessionDuration, setSessionDuration] = useState(20); // in minutes
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
 
   // Update current time every second
   useEffect(() => {
@@ -18,6 +22,16 @@ function AppContent() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Apply dark mode class and persist preference
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark-mode');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+    }
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+  }, [darkMode]);
 
   const {
     state,
@@ -52,6 +66,14 @@ function AppContent() {
           </div>
           <div className="header-right">
             <span className="current-time">{formatClockTime(currentTime)}</span>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="btn btn-secondary btn-icon-only"
+              aria-label="Toggle dark mode"
+              title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {darkMode ? '☀️' : '🌙'}
+            </button>
             <div className="header-menu">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
@@ -84,7 +106,7 @@ function AppContent() {
                     }}
                     className="menu-item menu-item-danger"
                   >
-                    Clear all
+                    Clear All
                   </button>
                 </div>
               </>
