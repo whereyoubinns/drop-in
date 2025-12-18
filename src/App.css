@@ -177,13 +177,18 @@
 }
 
 .queue-count {
-  background: var(--input-bg);
+  background: #edf2f7;
   padding: 0.75rem;
   border-radius: 8px;
   text-align: center;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: #4a5568;
   margin-bottom: 1rem;
+}
+
+.dark-mode .queue-count {
+  background: var(--input-bg);
+  color: var(--text-secondary);
 }
 
 .add-player-form {
