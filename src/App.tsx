@@ -53,7 +53,6 @@ function AppContent() {
         <h1>Drop-In Court Manager</h1>
         <div className="header-info">
           <div className="session-config">
-            <span>Friday Night Drop-In • </span>
             <select
               value={sessionDuration}
               onChange={(e) => setSessionDuration(Number(e.target.value))}
